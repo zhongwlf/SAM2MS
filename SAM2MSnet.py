@@ -178,9 +178,9 @@ class BasicConv2d(nn.Module):
         x = self.bn(x)
         return x
     
-class RFB_modified(nn.Module):
+class DRB_modified(nn.Module):
     def __init__(self, in_channel, out_channel):
-        super(RFB_modified, self).__init__()
+        super(DRB_modified, self).__init__()
         self.relu = nn.ReLU(True)
         self.branch0 = nn.Sequential(
             BasicConv2d(in_channel, out_channel, 1),
@@ -250,21 +250,21 @@ class SAM2MSNet(nn.Module):
             *blocks
         )
         # large
-        self.rfb1 = RFB_modified(144, 64)
-        self.rfb2 = RFB_modified(288, 64)
-        self.rfb3 = RFB_modified(576, 64)
-        self.rfb4 = RFB_modified(1152, 64)
+        self.DRB1 = DRB_modified(144, 64)
+        self.DRB2 = DRB_modified(288, 64)
+        self.DRB3 = DRB_modified(576, 64)
+        self.DRB4 = DRB_modified(1152, 64)
         # tiny & small
-        """ self.rfb1 = RFB_modified(96, 64)
-        self.rfb2 = RFB_modified(192, 64)
-        self.rfb3 = RFB_modified(384, 64)
-        self.rfb4 = RFB_modified(768, 64) """
+        """ self.DRB1 = DRB_modified(96, 64)
+        self.DRB2 = DRB_modified(192, 64)
+        self.DRB3 = DRB_modified(384, 64)
+        self.DRB4 = DRB_modified(768, 64) """
 
         #base+
-        """ self.rfb1 = RFB_modified(112, 64)
-        self.rfb2 = RFB_modified(224, 64)
-        self.rfb3 = RFB_modified(448, 64)
-        self.rfb4 = RFB_modified(896, 64) """
+        """ self.DRB1 = DRB_modified(112, 64)
+        self.DRB2 = DRB_modified(224, 64)
+        self.DRB3 = DRB_modified(448, 64)
+        self.DRB4 = DRB_modified(896, 64) """
         #self.x5_x4 = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
         self.x4_x3 = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
         self.x3_x2 = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3, padding=1), nn.BatchNorm2d(64), nn.ReLU(inplace=True))
@@ -302,7 +302,7 @@ class SAM2MSNet(nn.Module):
         input = x
         x1, x2, x3, x4 = self.encoder(x)
         x4_temp = x4
-        x1, x2, x3, x4 = self.rfb1(x1), self.rfb2(x2), self.rfb3(x3), self.rfb4(x4)
+        x1, x2, x3, x4 = self.DRB1(x1), self.DRB2(x2), self.DRB3(x3), self.DRB4(x4)
         x4_3 = self.x4_x3(abs(F.interpolate(x4,size=x3.size()[2:], mode='bilinear')-x3))
         x3_2 = self.x3_x2(abs(F.interpolate(x3,size=x2.size()[2:], mode='bilinear')-x2))
         x2_1 = self.x2_x1(abs(F.interpolate(x2,size=x1.size()[2:], mode='bilinear')-x1))
